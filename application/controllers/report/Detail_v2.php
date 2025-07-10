@@ -77,6 +77,17 @@ class Detail_v2 extends NH_Controller
 					$tmp['filter']['logic'] = 'and';
 				}
 			}
+			if (isset($tmp['server_filter']) && !empty($tmp['server_filter'])) {
+				$filterMem = array(
+					'field' => 'server',
+					'operator' => 'eq',
+					'value' => $tmp['server_filter']
+				);
+				$tmp['filter']['filters'][] = $filterMem;
+				if (!isset($tmp['filter']['logic'])) {
+					$tmp['filter']['logic'] = 'and';
+				}
+			}
 			#get all
 			$tmpData = $this->Otp_detail_v2_model->getAllPaging($tmp);
 
@@ -146,6 +157,51 @@ class Detail_v2 extends NH_Controller
 			$dataResponse->error = $e->getMessage();
 			$dataResponse->status = StatusResponse::_ERROR;
 
+		} finally {
+			echo json_encode($dataResponse);
+		}
+	}
+
+	public function getDistinctServer()
+	{
+		$dataResponse = new stdClass();
+		try {
+			if (empty($_POST['filters'])) {
+				throw new Exception('Empty payload');
+			}
+			$tmp = json_decode($this->input->post('filters', true), true);
+			$wheres = array();
+			if ($this->_role == TypeUser::_ADMIN) {
+				if (isset($tmp['mem_filter'])) {
+					$wheres['mem'] = $tmp['mem_filter'];
+				}
+			} else {
+				$wheres['mem'] = $this->_mem[0] ?? '';
+			}
+			if (isset($tmp['start_date_filter'])) {
+				$wheres['time >='] = strtotime($tmp['start_date_filter'] . ' 00:00:00');
+			}
+			if (isset($tmp['end_date_filter'])) {
+				$wheres['time <='] = strtotime($tmp['end_date_filter'] . ' 23:59:59');
+			}
+			$tmpData = $this->Otp_detail_v2_model->getDistinct($wheres, 'server');
+			//clean null item and add key to array [null,"ddd","aaa"] -> [["server"=>"ddd"],["server"=>"aaa"]]
+			$tmpData = array_filter($tmpData, function ($item) {
+				return !is_null($item);
+			});
+			$tmpData = array_map(function ($item) {
+				return ['server' => $item];
+			}, $tmpData);
+			//convert {"1":{"server":"ddd"},"2":{"server":"aaa"}} to [["server"=>"ddd"],["server"=>"aaa"]]
+			$tmpData = array_values($tmpData);
+
+			$dataResponse->data = $tmpData;
+			$dataResponse->total = count($tmpData);
+			$dataResponse->status = StatusResponse::_SUCCESS;
+
+		} catch (Exception $e) {
+			$dataResponse->error = $e->getMessage();
+			$dataResponse->status = StatusResponse::_ERROR;
 		} finally {
 			echo json_encode($dataResponse);
 		}

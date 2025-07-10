@@ -55,6 +55,7 @@
 							</div>
 						</div>
 					</div>
+
 				</div>
 				<!-- All Orders Content -->
 				<!-- END All Orders Content -->
@@ -341,6 +342,8 @@
 			$("#grid").data("kendoGrid").dataSource.read();
 		});
 
+
+
 		function init_filter_date() {
 			var startDate = new Date();
 			$('#date_start_filter').kendoDatePicker({
@@ -351,6 +354,7 @@
 				format: "dd-MM-yyyy",
 				change: function (e) {
 					$("#grid").data("kendoGrid").dataSource.read();
+					reloadServerFilter();
 				},
 			});
 			$('#date_end_filter').kendoDatePicker({
@@ -361,7 +365,7 @@
 				format: "dd-MM-yyyy",
 				change: function (e) {
 					$("#grid").data("kendoGrid").dataSource.read();
-
+					reloadServerFilter();
 				},
 			});
 		}
@@ -380,6 +384,7 @@
 								let mem_filter = $('#mem_filter').val();
 								let start_date_filter = $('#date_start_filter').val();
 								let end_date_filter = $('#date_end_filter').val();
+
 								if (!isNullorEmpty(mem_filter) && mem_filter !== 'all') {
 									a.mem_filter = mem_filter;
 								}
@@ -389,6 +394,7 @@
 								if (!isNullorEmpty(end_date_filter)) {
 									a.end_date_filter = end_date_filter;
 								}
+
 								a.pooling_timestamp = pooling_timestamp;
 								return {
 									filters: JSON.stringify(a)

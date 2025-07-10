@@ -750,7 +750,7 @@
 					serverSorting: true,
 					serverFiltering: true,
 					serverAggregates: true,
-					sort: {field: "createtime", dir: "desc"},
+					sort: {field: "count", dir: "desc"},
 					schema: {
 						data: "data", // records are returned in the "data" field of the response
 						total: "total", // total number of records is in the "total" field of the response

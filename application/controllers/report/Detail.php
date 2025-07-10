@@ -1,9 +1,8 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * @property Otp_apple_model $Otp_apple_model
  **/
-
 class Detail extends NH_Controller
 {
 
@@ -32,7 +31,7 @@ class Detail extends NH_Controller
 				throw new Exception('Empty payload');
 			}
 			$tmp = json_decode($this->input->post('filters', true), true);
-			if ($this->_role == 1){
+			if ($this->_role == TypeUser::_ADMIN) {
 				if (isset($tmp['mem_filter'])) {
 					$filterMem = array(
 						'field' => 'mem',
@@ -40,18 +39,18 @@ class Detail extends NH_Controller
 						'value' => $tmp['mem_filter']
 					);
 					$tmp['filter']['filters'][] = $filterMem;
-					if (!isset($tmp['filter']['logic'])){
+					if (!isset($tmp['filter']['logic'])) {
 						$tmp['filter']['logic'] = 'and';
 					}
 				}
-			}else{
+			} else {
 				$filterMem = array(
 					'field' => 'mem',
 					'operator' => 'eq',
 					'value' => $this->_mem[0] ?? ''
 				);
 				$tmp['filter']['filters'][] = $filterMem;
-				if (!isset($tmp['filter']['logic'])){
+				if (!isset($tmp['filter']['logic'])) {
 					$tmp['filter']['logic'] = 'and';
 				}
 			}
@@ -62,7 +61,7 @@ class Detail extends NH_Controller
 					'value' => strtotime($tmp['start_date_filter'] . ' 00:00:00')
 				);
 				$tmp['filter']['filters'][] = $filterMem;
-				if (!isset($tmp['filter']['logic'])){
+				if (!isset($tmp['filter']['logic'])) {
 					$tmp['filter']['logic'] = 'and';
 				}
 			}
@@ -73,10 +72,11 @@ class Detail extends NH_Controller
 					'value' => strtotime($tmp['end_date_filter'] . ' 23:59:59')
 				);
 				$tmp['filter']['filters'][] = $filterMem;
-				if (!isset($tmp['filter']['logic'])){
+				if (!isset($tmp['filter']['logic'])) {
 					$tmp['filter']['logic'] = 'and';
 				}
 			}
+
 			#get all
 			$tmpData = $this->Otp_apple_model->getAllPaging($tmp);
 
@@ -109,7 +109,7 @@ class Detail extends NH_Controller
 	{
 		$dataResponse = new stdClass();
 		try {
-			if ($this->_role != 1){
+			if ($this->_role != 1) {
 				throw new Exception('Only admin can delete the data detail');
 			}
 			if (empty($_POST['filters'])) {
@@ -118,20 +118,20 @@ class Detail extends NH_Controller
 			$filters = json_decode($this->input->post('filters', true), true);
 
 
-			if (date('d-m-Y', strtotime($filters['start_date_filter'])) != $filters['start_date_filter']){
+			if (date('d-m-Y', strtotime($filters['start_date_filter'])) != $filters['start_date_filter']) {
 				throw new Exception('Start date time is invalid');
 			}
-			if (date('d-m-Y', strtotime($filters['end_date_filter'])) != $filters['end_date_filter']){
+			if (date('d-m-Y', strtotime($filters['end_date_filter'])) != $filters['end_date_filter']) {
 				throw new Exception('End date time is invalid');
 			}
 			$start_date_filter = strtotime($filters['start_date_filter'] . ' 00:00:00');
-			$end_date_filter = strtotime($filters['end_date_filter']. ' 24:00:00');
-			if ($filters['mem_filter'] == 'all'){
+			$end_date_filter = strtotime($filters['end_date_filter'] . ' 24:00:00');
+			if ($filters['mem_filter'] == 'all') {
 				$mem_filter = $this->_mem;
-			}else{
+			} else {
 				$mem_filter = [$filters['mem_filter']];
 			}
-			$wheres =array(
+			$wheres = array(
 				'time >=' => $start_date_filter,
 				'time <' => $end_date_filter,
 			);
@@ -150,4 +150,6 @@ class Detail extends NH_Controller
 			echo json_encode($dataResponse);
 		}
 	}
+
+
 }
