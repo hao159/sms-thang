@@ -21,23 +21,24 @@ class NH_Controller extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		$this->load->helper('constants');
 		$return_url = base_url(uri_string());
 
 		$this->aaa->loginCheck(true, $return_url);
 		# set config
 		$router = (array)$this->router;
 
-		if ($this->session->userdata("role") !== null && in_array($this->session->userdata("role"), [0, 1, 2])) {
+		if ($this->session->userdata("role") !== null && in_array($this->session->userdata("role"), TypeUser::getAll())) {
 			$this->_role = $this->session->userdata("role");
 			$this->load->model('Account_model');
-			if ($this->_role == 1) {
+			if ($this->_role == TypeUser::_ADMIN) {
 				//load distinct all mem
 				$this->_mem = $this->Account_model->getDistinct(null, 'mem');
 			} else {
 				$this->_mem = $this->session->userdata("mem") !== null ? [$this->session->userdata("mem")] : [];
 			}
 		} else {
-			$this->_role = 0;
+			$this->_role = TypeUser::_USER;
 			$this->_mem = $this->session->userdata("mem") !== null ? [$this->session->userdata("mem")] : [];
 		}
 
@@ -55,20 +56,20 @@ class NH_Controller extends CI_Controller
 					'name' => $service_clone['name'],
 					'description' => $service_clone['name'],
 					'icon' => 'fad fa-clone',
-					'type_user' => [1, 0, 2],
+					'type_user' => TypeUser::getAll(),
 					'id' => 'clone_' . $service_clone['tbl_name'],
 					'sub' => array(
 						array(
 							'name' => 'Statistics ' . $service_clone['name'],
 							'description' => 'Statistics ' . $service_clone['name'],
-							'type_user' => [1, 0, 2],
+							'type_user' => TypeUser::getAll(),
 							'icon' => 'fad fa-clone',
 							'url' => 'clone/' . $service_clone['tbl_name'] . '/report-statistic.html'
 						),
 						array(
 							'name' => 'Detail ' . $service_clone['name'],
 							'description' => 'Detail ' . $service_clone['name'],
-							'type_user' => [1, 0, 2],
+							'type_user' => TypeUser::getAll(),
 							'icon' => 'fad fa-clone',
 							'url' => 'clone/' . $service_clone['tbl_name'] . '/report-detail.html'
 						)
@@ -79,7 +80,7 @@ class NH_Controller extends CI_Controller
 			if ($this->_clone_menu) {
 				$parent_clone_table[] = array(
 					'name' => 'Clone table',
-					'type_user' => [0, 1, 2],
+					'type_user' => TypeUser::getAll(),
 					'icon' => 'fad fa-stream',
 					'description' => 'Clone table',
 					'sub' => $this->_clone_menu
@@ -88,36 +89,45 @@ class NH_Controller extends CI_Controller
 			}
 		}
 
-		if (in_array($this->_role, [1, 2])) {
+		if (in_array($this->_role, [TypeUser::_ADMIN, TypeUser::_USER_TEST])) {
 			$this->_admin_menu = array(
 				array(
 					'name' => 'Admin menu',
 					'opt' => '',
-					'type_user' => [1, 2],
+					'type_user' => [TypeUser::_ADMIN, TypeUser::_USER_TEST],
 					'url' => 'header',
 					'description' => 'Admin menu'
 				),
 				array(
 					'name' => 'Clone table',
 					'url' => 'create-clone-table.html',
-					'type_user' => [1, 2],
+					'type_user' => [TypeUser::_ADMIN],
 					'icon' => 'far fa-layer-plus',
 					'description' => 'Clone table'
 				),
 				array(
 					'name' => 'Link test',
 					'url' => 'management-link-test.html',
-					'type_user' => [1, 2],
+					'type_user' => [TypeUser::_ADMIN, TypeUser::_USER_TEST],
 					'icon' => 'fas fa-link',
 					'description' => 'Serial'
 				),
 				array(
 					'name' => 'Serial',
 					'url' => 'serial.html',
-					'type_user' => [1, 2],
+					'type_user' => [TypeUser::_ADMIN, TypeUser::_USER_TEST],
 					'icon' => 'fas fa-barcode',
 					'description' => 'Serial'
 				),
+				//file backup
+				array(
+					'name' => 'File backup',
+					'url' => 'file-backup.html',
+					'type_user' => [TypeUser::_ADMIN],
+					'icon' => 'fad fa-file-archive',
+					'description' => 'File backup'
+				),
+
 			);
 			$primary_nav = array_merge((array)$primary_nav, $this->_admin_menu);
 		}
@@ -126,7 +136,7 @@ class NH_Controller extends CI_Controller
 
 	protected function exitRoleAdmin()
 	{
-		if (!in_array($this->_role, [1])) {
+		if (!in_array($this->_role, [TypeUser::_ADMIN])) {
 			http_response_code(404);
 			if ($this->input->is_ajax_request) {
 				echo json_encode(array(
@@ -141,7 +151,7 @@ class NH_Controller extends CI_Controller
 
 	protected function exitRoleAdminMenu()
 	{
-		if (!in_array($this->_role, [1, 2])) {
+		if (!in_array($this->_role, [TypeUser::_ADMIN, TypeUser::_USER_TEST])) {
 			http_response_code(404);
 			if ($this->input->is_ajax_request) {
 				echo json_encode(array(

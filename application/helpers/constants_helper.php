@@ -11,3 +11,4 @@ class StatusResponse
 	const _SUCCESS = 'success';
 	const _ERROR = 'error';
 }
+

@@ -72,9 +72,11 @@ $route['otp-statistics-v2/update.html'] = 'report/statistic_v2/update';
 $route['otp-statistics-v2/delete.html'] = 'report/statistic_v2/delete';
 $route['otp-statistics-v2/insert.html'] = 'report/statistic_v2/insert';
 
+
 $route['sms-report-detail-v2.html'] = 'report/detail_v2';
 $route['sms-report-detail-v2/get-grid.html'] = 'report/detail_v2/getgrid';
 $route['sms-report-detail-v2/delete.html'] = 'report/detail_v2/delete';
+$route['sms-report-detail-v2/get-server.html'] = 'report/detail_v2/getDistinctServer';
 
 
 //$route['report-detail-clone-ig.html'] = 'report/clone_ig';
@@ -121,3 +123,10 @@ $route['management-link-test/add.html'] = 'link-test/management/add';
 $route['management-link-test/delete.html'] = 'link-test/management/delete';
 $route['management-link-test/get-one.html'] = 'link-test/management/getone';
 $route['management-link-test/update.html'] = 'link-test/management/update';
+
+//file backup route
+$route['file-backup.html'] = 'File_backup/index';
+$route['file-backup/get-grid.html'] = 'File_backup/getgrid';
+$route['file-backup/download/(:any)'] = 'File_backup/download/$1';
+$route['file-backup/view/(:any)'] = 'File_backup/view/$1';
+

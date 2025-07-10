@@ -30,3 +30,7 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 /tests/tests/
 /tests/results/
 .env
+## ignore file inside uploads folder not .htaccess
+/uploads/*
+# Ignore all files in uploads except .htaccess
+!/uploads/.htaccess

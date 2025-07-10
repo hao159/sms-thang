@@ -55,6 +55,16 @@
 							</div>
 						</div>
 					</div>
+					<div class="col-sm-12 col-lg-6">
+						<div class="form-group">
+							<label class="col-md-3 control-label" for="server_filter">Server</label>
+							<div class="col-md-9">
+								<select class="form-control" name="server_filter" style="width: 100%"
+										id="server_filter">
+								</select>
+							</div>
+						</div>
+					</div>
 				</div>
 				<!-- All Orders Content -->
 				<!-- END All Orders Content -->
@@ -115,67 +125,67 @@
 
 	<script>
 
-		$( document ).ready( function () {
+		$(document).ready(function () {
 			init_filter_date();
-
-			$( '#mem_filter' ).kendoDropDownList();
+			initServerFilter();
+			$('#mem_filter').kendoDropDownList();
 			init_grid();
 
-			let grid = $( "#grid" ).data( "kendoGrid" );
+			let grid = $("#grid").data("kendoGrid");
 
-		} );
+		});
 
 		function delete_data() {
-			let mem_filter = $( '#mem_filter' ).val();
-			let start_date_filter = $( '#date_start_filter' ).val();
-			let end_date_filter = $( '#date_end_filter' ).val();
+			let mem_filter = $('#mem_filter').val();
+			let start_date_filter = $('#date_start_filter').val();
+			let end_date_filter = $('#date_end_filter').val();
 			let filters = {};
-			if ( isNullorEmpty( mem_filter ) || mem_filter === 'all' ) {
+			if (isNullorEmpty(mem_filter) || mem_filter === 'all') {
 				filters.mem_filter = 'all';
 			} else {
 				filters.mem_filter = mem_filter;
 			}
-			if ( isNullorEmpty( start_date_filter ) ) {
-				alert_error( 'Vui lòng chọn ngày bắt đầu' );
+			if (isNullorEmpty(start_date_filter)) {
+				alert_error('Vui lòng chọn ngày bắt đầu');
 				return;
 			}
-			if ( isNullorEmpty( end_date_filter ) ) {
-				alert_error( 'Vui lòng chọn ngày kết thúc' );
+			if (isNullorEmpty(end_date_filter)) {
+				alert_error('Vui lòng chọn ngày kết thúc');
 				return;
 			}
 			filters.end_date_filter = end_date_filter;
 			filters.start_date_filter = start_date_filter;
 
-			swalWithBootstrapButtons.fire( {
+			swalWithBootstrapButtons.fire({
 				title: `Confirm?`,
 				width: 600,
 				html: `Delete
 				data of
-				${ filters.mem_filter },
+				${filters.mem_filter},
 				from
-				${ filters.start_date_filter }
+				${filters.start_date_filter}
 				to
-				${ filters.end_date_filter }
+				${filters.end_date_filter}
 				?`,
 				icon: 'warning',
 				showCancelButton: true,
 				confirmButtonText: 'Ok 👌!',
 				cancelButtonText: 'Cancel!',
 				reverseButtons: true
-			} ).then( ( result ) => {
-				if ( result.isConfirmed ) {
-					$.ajax( {
+			}).then((result) => {
+				if (result.isConfirmed) {
+					$.ajax({
 						url: '/sms-report-detail-v2/delete.html',
 						type: 'POST',
 						dataType: 'json',
 						data: {
-							filters: JSON.stringify( filters )
+							filters: JSON.stringify(filters)
 						},
 						beforeSend: function () {
 							NProgress.start();
 						},
-						success: function ( d ) {
-							if ( d.status === "<?= StatusResponse::_SUCCESS ?>" ) {
+						success: function (d) {
+							if (d.status === "<?= StatusResponse::_SUCCESS ?>") {
 								swalWithBootstrapButtons.fire(
 									'Success',
 									`Delete success`,
@@ -183,95 +193,151 @@
 								)
 							} else {
 								// load lỗi
-								alert_error( d.error )
+								alert_error(d.error)
 							}
 							NProgress.done();
-							$( "#grid" ).data( "kendoGrid" ).dataSource.read();
+							$("#grid").data("kendoGrid").dataSource.read();
 						},
-						error: function ( xhr, status, error ) {
+						error: function (xhr, status, error) {
 							// Handle error
-							alert_error( `${ status } - Bạn không có quyền truy cập` );
+							alert_error(`${status} - Bạn không có quyền truy cập`);
 							NProgress.done();
 						}
-					} );
+					});
 
 
-				} else if ( result.dismiss === Swal.DismissReason.cancel ) {
+				} else if (result.dismiss === Swal.DismissReason.cancel) {
 					swalWithBootstrapButtons.fire(
 						'Canceled!',
 						'Your data is safe',
 						'error'
 					)
 				}
-			} )
+			})
 		}
 
-		$( '#mem_filter' ).on( 'change', function ( event ) {
+		//init server filter
+		function initServerFilter() {
+			$('#server_filter').kendoDropDownList({
+				dataTextField: "server",
+				dataValueField: "server",
+				optionLabel: "All servers",
+				dataSource: {
+					transport: {
+						read: {
+							url: "<?= base_url('sms-report-detail-v2/get-server.html') ?>",
+							dataType: "json",
+							type: "POST",
+							data: function (a) {
+								let mem_filter = $('#mem_filter').val();
+								let start_date_filter = $('#date_start_filter').val();
+								let end_date_filter = $('#date_end_filter').val();
+								if (!isNullorEmpty(mem_filter) && mem_filter !== 'all') {
+									a.mem_filter = mem_filter;
+								}
+								if (!isNullorEmpty(start_date_filter)) {
+									a.start_date_filter = start_date_filter;
+								}
+								if (!isNullorEmpty(end_date_filter)) {
+									a.end_date_filter = end_date_filter;
+								}
+								return {
+									filters: JSON.stringify(a)
+								}
+							},
+						}
+					},
+					schema: {
+						data: "data", // records are returned in the "data" field of the response
+						total: "total", // total number of records is in the "total" field of the response
+					}
+				},
+				change: function (e) {
+					$("#grid").data("kendoGrid").dataSource.read();
+				}
+			});
+		}
+
+		function reloadServerFilter() {
+			$('#server_filter').data('kendoDropDownList').dataSource.read();
+			$('#server_filter').data('kendoDropDownList').refresh();
+		}
+
+		$('#mem_filter').on('change', function (event) {
 			event.preventDefault();
 			/* Act on the event */
-			$( "#grid" ).data( "kendoGrid" ).dataSource.read();
-		} );
+			$("#grid").data("kendoGrid").dataSource.read();
+			reloadServerFilter()
+		});
 
 		function init_filter_date() {
 			var startDate = new Date();
-			$( '#date_start_filter' ).kendoDatePicker( {
+			$('#date_start_filter').kendoDatePicker({
 				value: startDate,
 				culture: "vi-VN",
-				min: new Date( 2019, 0, 1 ),
+				min: new Date(2019, 0, 1),
 				max: new Date(),
 				format: "dd-MM-yyyy",
-				change: function ( e ) {
-					$( "#grid" ).data( "kendoGrid" ).dataSource.read();
+				change: function (e) {
+					$("#grid").data("kendoGrid").dataSource.read();
+					reloadServerFilter()
 				},
-			} );
-			$( '#date_end_filter' ).kendoDatePicker( {
+			});
+			$('#date_end_filter').kendoDatePicker({
 				value: new Date(),
 				culture: "vi-VN",
-				min: new Date( 2019, 0, 1 ),
+				min: new Date(2019, 0, 1),
 				max: new Date(),
 				format: "dd-MM-yyyy",
-				change: function ( e ) {
-					$( "#grid" ).data( "kendoGrid" ).dataSource.read();
+				change: function (e) {
+					$("#grid").data("kendoGrid").dataSource.read();
+					reloadServerFilter()
 
 				},
-			} );
+			});
 		}
 
-		let pooling_timestamp = Math.floor( Date.now() / 1000 );
+
+		let pooling_timestamp = Math.floor(Date.now() / 1000);
 
 		function init_grid() {
-			$( "#grid" ).kendoGrid( {
+			$("#grid").kendoGrid({
 				dataSource: {
 					transport: {
 						read: {
 							url: "<?= base_url('sms-report-detail-v2/get-grid.html') ?>",
 							dataType: "json",
 							type: "POST",
-							data: function ( a ) {
-								let mem_filter = $( '#mem_filter' ).val();
-								let start_date_filter = $( '#date_start_filter' ).val();
-								let end_date_filter = $( '#date_end_filter' ).val();
-								if ( !isNullorEmpty( mem_filter ) && mem_filter !== 'all' ) {
+							data: function (a) {
+								let mem_filter = $('#mem_filter').val();
+								let start_date_filter = $('#date_start_filter').val();
+								let end_date_filter = $('#date_end_filter').val();
+								//server filter
+								let server_filter = $('#server_filter').val();
+								if (!isNullorEmpty(mem_filter) && mem_filter !== 'all') {
 									a.mem_filter = mem_filter;
 								}
-								if ( !isNullorEmpty( start_date_filter ) ) {
+								if (!isNullorEmpty(start_date_filter)) {
 									a.start_date_filter = start_date_filter;
 								}
-								if ( !isNullorEmpty( end_date_filter ) ) {
+								if (!isNullorEmpty(end_date_filter)) {
 									a.end_date_filter = end_date_filter;
+								}
+								if (!isNullorEmpty(server_filter) && server_filter !== 'all') {
+									a.server_filter = server_filter;
 								}
 								a.pooling_timestamp = pooling_timestamp;
 								return {
-									filters: JSON.stringify( a )
+									filters: JSON.stringify(a)
 								}
 							},
-							complete: function ( d ) {
+							complete: function (d) {
 								total_sms = d.responseJSON.total
-								pooling_timestamp = parseInt( d?.responseJSON?.pooling_timestamp )
-								if ( pooling_timestamp == null ) {
-									pooling_timestamp = Math.floor( Date.now() / 1000 );
+								pooling_timestamp = parseInt(d?.responseJSON?.pooling_timestamp)
+								if (pooling_timestamp == null) {
+									pooling_timestamp = Math.floor(Date.now() / 1000);
 								}
-								$( '#aggregates-data' ).text( total_sms )
+								$('#aggregates-data').text(total_sms)
 							}
 						}
 					},
@@ -286,21 +352,21 @@
 					serverSorting: true,
 					serverFiltering: true,
 					serverAggregates: false,
-					sort: { field: "time", dir: "desc" },
+					sort: {field: "time", dir: "desc"},
 					schema: {
 						data: "data", // records are returned in the "data" field of the response
 						total: "total", // total number of records is in the "total" field of the response
 						id: "id",
 						model: {
 							fields: {
-								service: { type: "string" },
-								otp: { type: "string" },
-								mem: { type: "string" },
-								count: { type: "number" },
-								time: { type: "string" },
-								phone: { type: "string" },
-								server: { type: "string" },
-								note: { type: "string" },
+								service: {type: "string"},
+								otp: {type: "string"},
+								mem: {type: "string"},
+								count: {type: "number"},
+								time: {type: "string"},
+								phone: {type: "string"},
+								server: {type: "string"},
+								note: {type: "string"},
 							}
 						}
 					}// enable server paging
@@ -308,7 +374,7 @@
 				sortable: true,
 				toolbar: [
 					{
-						template: kendo.template( $( "#toolbarGrid" ).html() )
+						template: kendo.template($("#toolbarGrid").html())
 					},
 					"excel"
 				],
@@ -372,20 +438,20 @@
 						width: 180,
 					},
 				],
-				dataBound: function ( e ) {
+				dataBound: function (e) {
 					let grid = e.sender;
 					let dataItems = grid.dataSource.view();
-					for ( let i = 0; i < dataItems.length; i++ ) {
+					for (let i = 0; i < dataItems.length; i++) {
 						let dataItem = dataItems[i];
-						console.log( dataItem.is_new )
-						let row = grid.tbody.find( "tr[data-uid='" + dataItem.uid + "']" );
+						console.log(dataItem.is_new)
+						let row = grid.tbody.find("tr[data-uid='" + dataItem.uid + "']");
 						// Apply your conditions and set the background color accordingly
-						if ( dataItem.is_new ) {
-							row.css( 'background-color', '#aad178 !important' );
+						if (dataItem.is_new) {
+							row.css('background-color', '#aad178 !important');
 						}
 					}
 				}
-			} );
+			});
 		}
 
 	</script>

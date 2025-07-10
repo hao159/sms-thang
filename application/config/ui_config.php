@@ -65,7 +65,7 @@ $config['primary_nav'] = array(
 	array(
 		'name' => 'Trang chủ',
 		'url' => 'home',
-		'type_user' => [0, 1, 2],
+		'type_user' => TypeUser::getAll(),
 		'icon' => 'gi gi-home',
 		'description' => 'Trang chủ'
 	),
@@ -73,56 +73,56 @@ $config['primary_nav'] = array(
 	array(
 		'name' => 'Utils',
 		'opt' => '',
-		'type_user' => [0, 1, 2],
+		'type_user' => TypeUser::getAll(),
 		'url' => 'header',
 		'description' => 'Utils'
 	),
 	array(
 		'name' => 'Urls download',
 		'url' => 'urls-download.html',
-		'type_user' => [0, 1, 2],
+		'type_user' => TypeUser::getAll(),
 		'icon' => 'fad fa-link',
 		'description' => 'Urls download'
 	),
 	array(
 		'name' => 'Test Số',
 		'url' => 'test-isdn.html',
-		'type_user' => [ 1, 2],
+		'type_user' => [TypeUser::_ADMIN, TypeUser::_USER_TEST],
 		'icon' => 'fad fa-link',
 		'description' => 'Test Số'
 	),
 	array(
 		'name' => 'Reports',
 		'opt' => '',
-		'type_user' => [0, 1, 2],
+		'type_user' => TypeUser::getAll(),
 		'url' => 'header',
 		'description' => 'Reports'
 	),
 	array(
 		'name' => 'OTP statistics',
 		'url' => 'otp-statistics.html',
-		'type_user' => [0, 1, 2],
+		'type_user' => TypeUser::getAll(),
 		'icon' => 'fas fa-chart-line',
 		'description' => 'OTP statistics'
 	),
 	array(
 		'name' => 'SMS report (all)',
 		'url' => 'sms-report-detail.html',
-		'type_user' => [0, 1, 2],
+		'type_user' => TypeUser::getAll(),
 		'icon' => 'far fa-list-alt',
 		'description' => 'SMS Report detail'
 	),
 	array(
 		'name' => 'OTP statistics V2',
 		'url' => 'otp-statistics-v2.html',
-		'type_user' => [0, 1, 2],
+		'type_user' => TypeUser::getAll(),
 		'icon' => 'fas fa-chart-line',
 		'description' => 'OTP statistics V2'
 	),
 	array(
 		'name' => 'SMS report V2',
 		'url' => 'sms-report-detail-v2.html',
-		'type_user' => [0, 1, 2],
+		'type_user' => TypeUser::getAll(),
 		'icon' => 'far fa-list-alt',
 		'description' => 'SMS Report detail version 2'
 	)

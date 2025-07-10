@@ -12,7 +12,7 @@ class Clone_table extends NH_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->exitRoleAdminMenu();
+		$this->exitRoleAdmin();
 
 		$this->load->model('Service_model');
 	}
